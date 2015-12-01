@@ -1,4 +1,4 @@
-package kz.zhandos.machinelearning;
+package kz.zhandos.machinelearning.chapter1;
 
 import java.util.ArrayList;
 import java.util.List;
