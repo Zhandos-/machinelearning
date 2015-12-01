@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class EucladianDistance {
+public class EuclideanDistance {
 
 	public static double distance(Map<String, Map<String, Double>> critics, String critic1, String critic2) {
 		double ret = 0;
