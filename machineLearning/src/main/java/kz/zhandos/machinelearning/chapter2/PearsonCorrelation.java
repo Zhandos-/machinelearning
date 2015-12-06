@@ -1,6 +1,7 @@
 package kz.zhandos.machinelearning.chapter2;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,41 @@ public class PearsonCorrelation {
     }
 
     return ret;
+  }
+
+
+
+  public static double correlation(Collection<Double> c1, Collection<Double> c2) {
+    double ret = 0;
+    double sum1 = 0d;
+    double sum2 = 0d;
+    double sumSqr1 = 0d;
+    double sumSqr2 = 0d;
+    double pSum = 0d;
+    double num = 0d;
+    double den = 0d;
+
+    Number a1[] = c1.toArray(new Number[c1.size()]);
+    Number a2[] = c1.toArray(new Number[c1.size()]);
+
+    int n = c1.size();
+    if (n > 0) {
+      for (int i = 0; i < n; i++) {
+        sum1 += a1[1].doubleValue();
+        sum2 += a2[1].doubleValue();
+        sumSqr1 += Math.pow(a1[1].doubleValue(), 2);
+        sumSqr2 += Math.pow(a2[1].doubleValue(), 2);
+        pSum += a1[1].doubleValue() * a2[1].doubleValue();
+      }
+      num = pSum - ((sum1 * sum2) / n);
+      den = Math.sqrt((sumSqr1 - Math.pow(sum1, 2) / n) * (sumSqr2 - Math.pow(sum2, 2) / n));
+      if (den == 0)
+        ret = 0;
+      else
+        ret = num / den;
+    }
+
+    return 1 - ret;
   }
 
   public static Map<String, Double> topMathes(Map<String, Map<String, Double>> critics,

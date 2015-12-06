@@ -112,7 +112,7 @@ public class GenerateFeedVector {
 
 
 
-  public static void countWordInBlog(String filePath) throws Exception {
+  public static void countWordInBlog(String toRead, String toWrite) throws Exception {
     // apcount={}
     // wordcounts={}
     // for feedurl in file('feedlist.txt'):
@@ -138,7 +138,7 @@ public class GenerateFeedVector {
     // out.write('\n')
     PrintWriter out = null;
     try {
-      List<String> blogLinks = readFile(filePath);
+      List<String> blogLinks = readFile(toRead);
 
       Map<String, Integer> apcount = new HashMap<String, Integer>();
       Map<String, Map<String, Integer>> wordcounts = new HashMap<String, Map<String, Integer>>();
@@ -166,12 +166,12 @@ public class GenerateFeedVector {
         wordList.add(e.getKey());
       }
 
-      File file = new File("blogdata.txt");
+      File file = new File(toWrite);
       if (!file.exists())
         file.mkdirs();
 
       out = new PrintWriter(new BufferedWriter(
-          new FileWriter(GenerateFeedVector.class.getResource("blogdata.txt").getPath(), true)));
+          new FileWriter(GenerateFeedVector.class.getResource(toWrite).getPath(), true)));
       out.write("Blog");
       // for word in wordlist: out.write('\t%s' % word)
       // out.write('\n')
@@ -184,9 +184,9 @@ public class GenerateFeedVector {
 
 
       for (String word : wordList) {
-        out.write(String.format("\t %s", word));
+        out.write(String.format("\t%s", word));
       }
-      out.write("\n ");
+      out.write("\n");
 
       for (Map.Entry<String, Map<String, Integer>> e : wordcounts.entrySet()) {
         out.write(e.getKey());
@@ -211,7 +211,7 @@ public class GenerateFeedVector {
 
 
   public static void main(String args[]) throws Exception {
-    countWordInBlog("feedlist.txt");
+    countWordInBlog("feedlistLight.txt", "test.txt");
   }
 
 }
