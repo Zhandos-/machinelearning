@@ -1,8 +1,11 @@
-package kz.zhandos.machinelearning.chapter1;
+package kz.zhandos.machinelearning.chapter2;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
 import org.testng.annotations.Test;
+
+import kz.zhandos.machinelearning.chapter2.Db;
+import kz.zhandos.machinelearning.chapter2.EuclideanDistance;
 
 public class EuclideanDistanceTest {
 

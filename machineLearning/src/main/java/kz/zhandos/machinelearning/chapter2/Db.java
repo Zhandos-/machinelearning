@@ -1,4 +1,4 @@
-package kz.zhandos.machinelearning.chapter1;
+package kz.zhandos.machinelearning.chapter2;
 
 import java.util.HashMap;
 import java.util.Map;
