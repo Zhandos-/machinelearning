@@ -86,7 +86,7 @@ public class GenerateFeedVector {
       Iterator itEntries = entries.iterator();
       while (itEntries.hasNext()) {
         SyndEntry entry = (SyndEntry) itEntries.next();
-        blogTitleDescription.add(Pair.pair(entry.getLink(), entry.getDescription().getValue()));
+        blogTitleDescription.add(Pair.pair(entry.getTitle(), entry.getDescription().getValue()));
       }
     } catch (Exception e) {
       log.error(e);
@@ -162,9 +162,14 @@ public class GenerateFeedVector {
       int feedlistCount = blogLinks.size();
       for (Map.Entry<String, Integer> e : apcount.entrySet()) {
         double frac = e.getValue() / feedlistCount;
-        if (frac > 0.1 && frac < 0.5)
-          wordList.add(e.getKey());
+        // if (frac > 0.1 && frac < 0.5)
+        wordList.add(e.getKey());
       }
+
+      File file = new File("blogdata.txt");
+      if (!file.exists())
+        file.mkdirs();
+
       out = new PrintWriter(new BufferedWriter(
           new FileWriter(GenerateFeedVector.class.getResource("blogdata.txt").getPath(), true)));
       out.write("Blog");
@@ -179,9 +184,9 @@ public class GenerateFeedVector {
 
 
       for (String word : wordList) {
-        out.write(String.format("\t%s", word));
+        out.write(String.format("\t %s", word));
       }
-      out.write("\n");
+      out.write("\n ");
 
       for (Map.Entry<String, Map<String, Integer>> e : wordcounts.entrySet()) {
         out.write(e.getKey());
@@ -190,8 +195,8 @@ public class GenerateFeedVector {
             out.write(String.format("\t%d", e.getValue().get(word)));
           else
             out.write("\t0");
-          out.write("\n");
         }
+        out.write("\n");
       }
 
     } catch (Exception e) {
