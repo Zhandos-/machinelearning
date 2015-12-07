@@ -167,8 +167,6 @@ public class GenerateFeedVector {
       }
 
       File file = new File(toWrite);
-      if (!file.exists())
-        file.mkdirs();
 
       out = new PrintWriter(new BufferedWriter(
           new FileWriter(GenerateFeedVector.class.getResource(toWrite).getPath(), true)));
@@ -208,10 +206,8 @@ public class GenerateFeedVector {
 
   }
 
-
-
   public static void main(String args[]) throws Exception {
-    countWordInBlog("feedlistLight.txt", "test.txt");
+    countWordInBlog("feedlistLight.txt", "blogdataLight.txt");
   }
 
 }

@@ -4,9 +4,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Scanner;
 
 import org.apache.log4j.Logger;
@@ -196,6 +198,117 @@ public class Clusters {
   }
 
 
+  public static final List<List<Integer>> kcluster(List<List<Double>> rows, Integer k) {
+    k = k == null ? 4 : k;
+    // # Determine the minimum and maximum values for each point
+    // ranges=[(min([row[i] for row in rows]),max([row[i] for row in rows]))
+    // for i in range(len(rows[0]))]
+    List<List<Integer>> ret = null;
+    Random r = new Random();
+    Double ranges[][] = new Double[rows.size()][2];
+    List<List<Double>> clusters = new ArrayList<List<Double>>();
+
+    int y = 0;
+    for (List<Double> row : rows) {
+      ranges[y][0] = Collections.min(row);
+      ranges[y][1] = Collections.max(row);
+      ++y;
+    }
+
+    // # Create k randomly placed centroids
+    // clusters=[[random.random( )*(ranges[i][1]-ranges[i][0])+ranges[i][0]
+    // for i in range(len(rows[0]))] for j in range(k)]
+    for (int j = 0; j < k; j++) {
+      List<Double> l = new ArrayList<Double>();
+      clusters.add(l);
+      for (int i = 0; i < rows.get(0).size(); i++) {
+        l.add(r.nextDouble() * (ranges[i][1] - ranges[i][0]) + ranges[i][0]);
+      }
+    }
+
+
+
+    // lastmatches=None
+    // for t in range(100):
+    // print 'Iteration %d' % t
+    // bestmatches=[[] for i in range(k)]
+    // # Find which centroid is the closest for each row
+    // for j in range(len(rows)):
+    // row=rows[j]
+    // bestmatch=0
+
+    List<List<Integer>> lastmatches = null;
+    for (int t = 0; t < 100; t++) {
+      System.out.println(String.format("Iteration %d", t));
+      List<List<Integer>> bestmatches = new ArrayList<List<Integer>>();
+
+      for (int j = 0; j < rows.size(); j++) {
+        List<Double> row = rows.get(j);
+        int bestmatch = 0;
+        // for i in range(k):
+        // d=distance(clusters[i],row)
+        // if d<distance(clusters[bestmatch],row): bestmatch=i
+        // bestmatches[bestmatch].append(j)
+        // # If the results are the same as last time, this is complete
+        // if bestmatches==lastmatches: break
+        // lastmatches=bestmatches
+
+        for (int i = 0; i < k; i++) {
+          double d = PearsonCorrelation.correlation(row, clusters.get(i));
+          if (d < PearsonCorrelation.correlation(clusters.get(0), row))
+            bestmatch = i;
+          if (bestmatches.get(bestmatch) == null) {
+            bestmatches.add(bestmatch, new ArrayList<Integer>());
+          }
+          bestmatches.get(bestmatch).add(j);
+          if (bestmatches == lastmatches)
+            break;
+          lastmatches = bestmatches;
+        }
+      }
+
+      List<Double> avgs = new ArrayList<Double>();
+
+      for (int i = 0; i < k; i++) {
+        if (bestmatches.size() > 0) {
+          for (Integer rowid : bestmatches.get(i)) {
+            for (int m = 0; m < rows.get(rowid).size(); m++) {
+              if (avgs.get(m) == null) {
+                avgs.add(m, 0.0d);
+              }
+              avgs.add(m, avgs.get(m) + rows.get(rowid).get(m));
+            }
+          }
+          for (int j = 0; j < avgs.size(); j++) {
+            avgs.add(j, avgs.get(j) / bestmatches.get(i).size());
+          }
+          clusters.add(i, avgs);
+        }
+      }
+      ret = bestmatches;
+    }
+
+
+
+    // # Move the centroids to the average of their members
+    // for i in range(k):
+    // avgs=[0.0]*len(rows[0])
+    // if len(bestmatches[i])>0:
+    // for rowid in bestmatches[i]:
+    // for m in range(len(rows[rowid])):
+    // avgs[m]+=rows[rowid][m]
+    // for j in range(len(avgs)):
+    // avgs[j]/=len(bestmatches[i])
+    // clusters[i]=avgs
+    // return bestmatches
+
+
+    return ret;
+
+  }
+
+
+
   public static void printclust(BiCluster cluster, List<String> labels, Integer n) {
     // def printclust(clust,labels=None,n=0):
     // # indent to make a hierarchy layout
@@ -234,7 +347,9 @@ public class Clusters {
 
   public static void main(String[] args) throws Exception {
     Pair<List<String>, Pair<List<String>, List<List<Double>>>> p = readFile("blogdata.txt");
-    printclust(hcluster(p.second.second), p.first, null);
+    // printclust(hcluster(p.second.second), p.first, null);
+    System.out.println(kcluster(p.second.second, 4));
   }
+
 
 }
