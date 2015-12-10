@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -198,21 +197,26 @@ public class Clusters {
   }
 
 
-  public static final List<List<Integer>> kcluster(List<List<Double>> rows, Integer k) {
+  public static final Map<Integer, List<Integer>> kcluster(List<List<Double>> rows, Integer k) {
     k = k == null ? 4 : k;
     // # Determine the minimum and maximum values for each point
     // ranges=[(min([row[i] for row in rows]),max([row[i] for row in rows]))
     // for i in range(len(rows[0]))]
-    List<List<Integer>> ret = null;
+    Map<Integer, List<Integer>> ret = null;
     Random r = new Random();
-    Double ranges[][] = new Double[rows.size()][2];
-    List<List<Double>> clusters = new ArrayList<List<Double>>();
+    Double ranges[][] = new Double[rows.get(0).size()][2];
+    Map<Integer, List<Double>> clusters = new HashMap<Integer, List<Double>>();
 
-    int y = 0;
-    for (List<Double> row : rows) {
-      ranges[y][0] = Collections.min(row);
-      ranges[y][1] = Collections.max(row);
-      ++y;
+    for (int i = 0; i < rows.get(0).size(); i++) {
+      for (List<Double> row : rows) {
+        if (ranges[i][0] == null)
+          ranges[i][0] = 100000000000d;
+        if (ranges[i][1] == null)
+          ranges[i][1] = -1d;
+        ranges[i][0] = Math.min(ranges[i][0], row.get(i));
+        ranges[i][1] = Math.max(ranges[i][0], row.get(i));
+      }
+
     }
 
     // # Create k randomly placed centroids
@@ -220,9 +224,10 @@ public class Clusters {
     // for i in range(len(rows[0]))] for j in range(k)]
     for (int j = 0; j < k; j++) {
       List<Double> l = new ArrayList<Double>();
-      clusters.add(l);
+      clusters.put(j, l);
       for (int i = 0; i < rows.get(0).size(); i++) {
-        l.add(r.nextDouble() * (ranges[i][1] - ranges[i][0]) + ranges[i][0]);
+        double d = r.nextDouble() * (ranges[i][1] - ranges[i][0]) + ranges[i][0];
+        l.add(d);
       }
     }
 
@@ -237,10 +242,10 @@ public class Clusters {
     // row=rows[j]
     // bestmatch=0
 
-    List<List<Integer>> lastmatches = null;
+    Map<Integer, List<Integer>> lastmatches = null;
     for (int t = 0; t < 100; t++) {
       System.out.println(String.format("Iteration %d", t));
-      List<List<Integer>> bestmatches = new ArrayList<List<Integer>>();
+      Map<Integer, List<Integer>> bestmatches = new HashMap<Integer, List<Integer>>();
 
       for (int j = 0; j < rows.size(); j++) {
         List<Double> row = rows.get(j);
@@ -258,7 +263,7 @@ public class Clusters {
           if (d < PearsonCorrelation.correlation(clusters.get(0), row))
             bestmatch = i;
           if (bestmatches.get(bestmatch) == null) {
-            bestmatches.add(bestmatch, new ArrayList<Integer>());
+            bestmatches.put(bestmatch, new ArrayList<Integer>());
           }
           bestmatches.get(bestmatch).add(j);
           if (bestmatches == lastmatches)
@@ -267,22 +272,20 @@ public class Clusters {
         }
       }
 
-      List<Double> avgs = new ArrayList<Double>();
+      Double[] avgs = new Double[rows.get(0).size()];
+      Arrays.fill(avgs, 0.0);
 
       for (int i = 0; i < k; i++) {
         if (bestmatches.size() > 0) {
           for (Integer rowid : bestmatches.get(i)) {
             for (int m = 0; m < rows.get(rowid).size(); m++) {
-              if (avgs.get(m) == null) {
-                avgs.add(m, 0.0d);
-              }
-              avgs.add(m, avgs.get(m) + rows.get(rowid).get(m));
+              avgs[m] += rows.get(rowid).get(m);
             }
           }
-          for (int j = 0; j < avgs.size(); j++) {
-            avgs.add(j, avgs.get(j) / bestmatches.get(i).size());
+          for (int j = 0; j < avgs.length; j++) {
+            avgs[j] /= bestmatches.get(i).size();
           }
-          clusters.add(i, avgs);
+          clusters.put(i, Arrays.asList(avgs));
         }
       }
       ret = bestmatches;
@@ -346,7 +349,7 @@ public class Clusters {
 
 
   public static void main(String[] args) throws Exception {
-    Pair<List<String>, Pair<List<String>, List<List<Double>>>> p = readFile("blogdata.txt");
+    Pair<List<String>, Pair<List<String>, List<List<Double>>>> p = readFile("blogdataLight.txt");
     // printclust(hcluster(p.second.second), p.first, null);
     System.out.println(kcluster(p.second.second, 4));
   }

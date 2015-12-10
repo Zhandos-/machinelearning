@@ -39,3 +39,6 @@ bin/
 #testng
 target/
 test-output/
+
+#sqlite files
+*.db
