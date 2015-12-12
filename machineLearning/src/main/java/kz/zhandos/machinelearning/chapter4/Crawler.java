@@ -1,6 +1,7 @@
 package kz.zhandos.machinelearning.chapter4;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -44,14 +45,18 @@ public class Crawler {
   // return None
 
   public String gettextonly(Element soup) {
-    return null;
+    String ret = soup == null ? null : soup.text();
+    return ret;
   }
 
   // # Separate the words by any non-whitespace character
   // def separatewords(self,text):
   // return None
-  List<String> separatewords(String text) {
-    return null;
+  public List<String> separatewords(String text) {
+    List<String> ret = null;
+    ret = text == null ? null
+        : Arrays.asList(text.replaceAll("[^a-zA-Z0-9 ]", "").toLowerCase().split("\\s+"));
+    return ret;
   }
 
 
