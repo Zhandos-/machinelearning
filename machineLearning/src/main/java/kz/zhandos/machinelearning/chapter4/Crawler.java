@@ -10,10 +10,20 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import kz.zhandos.machinelearning.chapter3.Clusters;
+import kz.zhandos.machinelearning.mybatis.SearchDAO;
+import kz.zhandos.machinelearning.mybatis.SearchMapper;
 import kz.zhandos.machinelearning.util.DomParser;
 
 public class Crawler {
   private final static Logger log = Logger.getLogger(Clusters.class);
+
+  private final static SearchDAO DAO = new SearchDAO();
+  private final static SearchMapper MAPPER = DAO.getMapper();
+  private static final List<String> IGNORE_WORDS = new ArrayList<String>();
+
+  static {
+    IGNORE_WORDS.addAll(Arrays.asList("the", "of", "to", "and", "a", "in", "is", "it"));
+  }
 
   public void init(String DbName) {
 
@@ -24,8 +34,26 @@ public class Crawler {
   }
 
 
-  public void getentryid(String table, String field, String value) {
-    // return null;
+  public Long getentryid(String table, String field, String value) {
+    log.info(String.format(
+        "Вызво метода getentryid(String table, String field, String value) table=%s field=%s value=%s",
+        table, field, value));
+    // cur=self.con.execute(
+    // "select rowid from %s where %s='%s'" % (table,field,value))
+    // res=cur.fetchone()
+    // if res==None:
+    // cur=self.con.execute(
+    // "insert into %s (%s) values ('%s')" % (table,field,value))
+    // return cur.lastrowid
+    // else:
+    // return res[0]
+    Long ret = MAPPER.getEntryId(table, field, value);
+    if (ret == null) {
+      MAPPER.insTableValue(table, field, value);
+      DAO.commitChanges();
+    }
+    ret = MAPPER.getEntryId(table, field, value);
+    return ret;
   }
 
 
@@ -35,7 +63,39 @@ public class Crawler {
   //
 
   public void addtoindex(String url, Document soup) {
+    if (isIndexed(url))
+      return;
     log.info(String.format("Indexing %s", url));
+    // if self.isindexed(url): return
+    // print 'Indexing '+url
+    // # Get the individual words
+    // text=self.gettextonly(soup)
+    String text = gettextonly(soup);
+    List<String> words = separatewords(text);
+
+    Long urlId = getentryid("urllist", "url", url);
+    System.out.println("words size=" + words.size());
+    for (int i = 0; i < words.size(); i++) {
+      String word = words.get(i);
+      if (!IGNORE_WORDS.contains(word)) {
+        Long wordId = getentryid("wordlist", "word", word);
+        MAPPER.insWordLocation(urlId, wordId, i);
+      }
+    }
+    DAO.commitChanges();
+    // words=self.separatewords(text)
+    // # Get the URL id
+    // urlid=self.getentryid('urllist','url',url)
+    // # Link each word to this url
+    // for i in range(len(words)):
+    // word=words[i]
+    // if word in ignorewords: continue
+    // wordid=self.getentryid('wordlist','word',word)
+    // self.con.execute("insert into wordlocation(urlid,wordid,location) \
+    // values (%d,%d,%d)" % (urlid,wordid,i))
+
+
+
   }
 
 
@@ -69,6 +129,9 @@ public class Crawler {
   // # Add a link between two pages
 
   public boolean isIndexed(String url) {
+    if (MAPPER.isIndexedUrl(url)) {
+      return MAPPER.isCrawled(url);
+    }
     return false;
   }
 
@@ -139,4 +202,15 @@ public class Crawler {
   public void createindextables() {
 
   }
+
+
+
+  public static void main(String args[]) {
+    Crawler crawler = new Crawler();
+    System.out
+        .println(crawler.crawl(Arrays.asList("https://en.wikipedia.org/wiki/Programming_language",
+            "https://en.wikipedia.org/wiki/Kazakhstan",
+            "https://en.wikipedia.org/wiki/Java_(programming_language)"), null));
+  }
+
 }

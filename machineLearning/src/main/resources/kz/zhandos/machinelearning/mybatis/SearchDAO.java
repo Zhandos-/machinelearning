@@ -7,10 +7,22 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.log4j.Logger;
 
+import kz.zhandos.machinelearning.chapter4.SqLiteDbUpdate;
+
 public class SearchDAO {
   private final static Logger log = Logger.getLogger(SearchDAO.class);
   private static SqlSessionFactory sqlSessionFactory;
   private static SqlSession session = null;
+
+
+
+  public SearchDAO() {
+    try {
+      SqLiteDbUpdate.createDB(false);
+    } catch (Exception e) {
+      log.error("", e);
+    }
+  }
 
   static {
     String resource = "config.xml";
@@ -45,7 +57,9 @@ public class SearchDAO {
   }
 
   public static void main(String args[]) {
-    System.out.println(getMapper().wordList());
+    getMapper().update("update databasechangeloglock set LOCKED=0 where id=1");
+    commitChanges();
+    System.out.println(getMapper().getAllFromTable("databasechangeloglock"));
     closeConection();
   }
 }

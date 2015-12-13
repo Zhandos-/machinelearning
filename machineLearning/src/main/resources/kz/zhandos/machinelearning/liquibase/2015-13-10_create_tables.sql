@@ -1,0 +1,18 @@
+CREATE TABLE hiddennode(
+ROWID INTEGER PRIMARY KEY   AUTOINCREMENT,
+   create_key           TEXT    NOT NULL
+  );
+  
+  CREATE TABLE wordhidden(
+  ROWID INTEGER PRIMARY KEY   AUTOINCREMENT,
+   strength REAL not null,
+   FROMID INT    NOT NULL,
+   TOID INT    NOT NULL
+  ); 
+  
+  CREATE TABLE hiddenurl(
+  ROWID INTEGER PRIMARY KEY   AUTOINCREMENT,
+   strength REAL not null,
+   FROMID INT    NOT NULL,
+   TOID INT    NOT NULL
+  );
