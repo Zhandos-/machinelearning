@@ -1,8 +1,8 @@
 package kz.zhandos.machinelearning.chapter3;
 
 public class Pair<T, V> {
-  T first;
-  V second;
+  public T first;
+  public V second;
 
   Pair(T first, V second) {
     this.first = first;
