@@ -93,6 +93,9 @@ public class MatchMaker {
     System.out.println(advancedclassify.lineartrain(advancedclassify.readCSV("agesonly.csv")));
     Double[] d = {30d, 25d};
     System.out.println(advancedclassify.dpclassify(d, avg));
+
+
+
   }
 
 }
