@@ -25,6 +25,8 @@ public class Db {
       lisa.put("Superman Returns", 3.5);
       lisa.put("You, Me and Dupree", 2.5);
       lisa.put("The Night Listener", 3.0);
+
+      //
     }
     CRITICS.put("Lisa Rose", lisa);
     Map<String, Double> Gene = new HashMap<String, Double>();
